@@ -8,19 +8,19 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "async": "^1.5.2",
+    "async": "^2.6.2",
     "commander": "^2.9.0",
     "html-entities": "^1.2.0",
-    "progress": "^1.1.8",
+    "progress": "^2.0.3",
     "scrape": "^0.2.3"
   },
   "devDependencies": {
-    "chai": "^3.5.0",
-    "eslint": "^2.7.0",
-    "eslint-config-airbnb": "^6.2.0",
-    "eslint-plugin-react": "^4.3.0",
-    "mocha": "~2.3.4",
-    "nock": "^8.0.0"
+    "chai": "^4.2.0",
+    "eslint": "^5.14.1",
+    "eslint-config-airbnb": "^17.1.0",
+    "eslint-plugin-react": "^7.12.4",
+    "mocha": "^6.0.1",
+    "nock": "^10.0.6"
   },
   "repository": {
     "type": "git",
