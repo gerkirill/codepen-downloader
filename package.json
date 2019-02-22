@@ -3,7 +3,7 @@
   "version": "0.4.3",
   "description": "Download codepens",
   "scripts": {
-    "test": "make test"
+    "test": "mocha"
   },
   "author": "",
   "license": "ISC",
