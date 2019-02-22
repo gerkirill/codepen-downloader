@@ -2,7 +2,7 @@
 
 let scrape = require('scrape');
 let htmlEntities = require('html-entities').AllHtmlEntities;
-let http = require('http');
+let http = require('https');
 let util = require('./util');
 
 let html = new htmlEntities();
@@ -25,7 +25,7 @@ module.exports = {
       let properties = {};
       if (err) return callback(err);
       let penValue = JSON.parse(html.decode($('input#init-data').first().attribs.value));
-      let resource = JSON.parse(penValue.__pen);
+      let resource = JSON.parse(penValue.__item);
 
       this._externalResources(resource, properties);
       this._preProcessors(resource, properties);
