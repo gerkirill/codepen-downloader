@@ -1,47 +1,39 @@
 #!/usr/bin/env node
-'use strict';
 
-let program     = require('commander');
-let async       = require('async');
-let fs          = require('fs');
-let cpen        = require('../src/cpen');
-let ProgressBar = require('progress');
-let packageJson = require('../package.json');
+const program = require('commander');
+const ProgressBar = require('progress');
+const cpen = require('../src/cpen');
+const packageJson = require('../package.json');
 
 module.exports = program;
 
-let triggerDownload = function(url, destination, options) {
-  destination = destination || '.';
-  let progress = new ProgressBar(`Downloading ( :percent )[:bar]`, {
+function triggerDownload(url, destination = '.', options = {}) {
+  const progress = new ProgressBar('Downloading ( :percent )[:bar]', {
     complete: '=',
     incomplete: '-',
     width: 50,
-    total: 3
+    total: 3,
   });
 
   // @todo: validate options
-
-  if (options === null || options === undefined) {
-    options = {};
+  const opts = {
+    ...options,
+    targetFiles: ['html', 'css', 'js'],
+    includeDependencies: true,
+    onTick() { progress.tick(); },
   };
 
-  options['targetFiles'] = ['html', 'css', 'js'];
-  options['includeDependencies'] = true;
-
-  cpen.download(url, destination,
-    (err) => {
-      if (err) return console.log(`Error: ${err.message}`);
-      console.log(`Completed`);
-    },
-    options,
-    (message) => {
-      progress.tick();
-    });
+  cpen.download(
+    url,
+    destination,
+    err => (err ? console.log(`Error: ${err.message}`) : console.log('Completed')),
+    opts,
+  );
 }
 
 program
   .version(packageJson.version)
-  .option('-v, --verbose', 'output more log then usual')
+  .option('-v, --verbose', 'output more log then usual');
 
 program
   .command('download <url> [destination]')

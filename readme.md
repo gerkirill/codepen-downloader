@@ -26,7 +26,7 @@ You can provide the full URL or only the codepen extension reference (e.g. `/sam
 
 This will download `.html` `.js` and `.css` files to `resource` folder.
 
-##### cpen.Download(url, destination, onCompleteCallback, [options], [onTick]):
+##### cpen.Download(url, destination, onCompleteCallback, [options]):
 
 You can use this method to dynamically download codepen files.
 
