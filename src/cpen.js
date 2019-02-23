@@ -1,4 +1,4 @@
-'use strict';
+
 
 const async = require('async');
 const util = require('./util');
@@ -9,30 +9,27 @@ module.exports = {
   download(url, destination, onCompleteCallback, options) {
     options = util.evaluateOptions(options);
     async.parallel(this._generateAsyncDownload_(url, options), (err, results) => {
-      if (err)
-        return console.error(err.message);
+      if (err) return console.error(err.message);
 
       this.create(results, destination, (e) => {
-        if (options.onTick)
-          options.onTick();
+        if (options.onTick) options.onTick();
         onCompleteCallback(e);
       });
     });
   },
 
   _generateAsyncDownload_(url, options) {
-    let parallel = {};
+    const parallel = {};
 
     // Download main files [html, js, css]
     options.targetFiles.forEach(f => parallel[f] = this.downloadFromEndpoint(url, f, options));
 
     // Download pen details
-    parallel['details'] = (callback) => {
+    parallel.details = (callback) => {
       web.getPenProperties(url, (err, data) => {
-        if (options.onTick)
-          options.onTick();
+        if (options.onTick) options.onTick();
         callback(err, data);
-      })
+      });
     };
 
     // @TODO: Download pre processed files
@@ -45,11 +42,10 @@ module.exports = {
   downloadFromEndpoint(url, fileExtension, options) {
     return (callback) => {
       web.downloadFile(url, fileExtension, callback, (err, data) => {
-        if(options.onTick)
-          options.onTick();
+        if (options.onTick) options.onTick();
         callback();
       });
-    }
+    };
   },
 
   create(result, destination, fn) {
