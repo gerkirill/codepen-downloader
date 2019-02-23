@@ -7,8 +7,7 @@ const fullURL = /http[s]?:\/\/codepen\.io\/(.*)\/(.*)\/(.*)/;
 const domainURL = /codepen\.io\/(.*)\/(.*)\/(.*)/;
 const penURL = /\/(.*)\/(.*)\/(.*)/;
 
-// todo: take a look into that httpS etc.
-const normalURL = /htt[s]?:\/\/(.*)/;
+const normalURL = /http[s]?:\/\/(.*)/;
 
 module.exports = {
 
@@ -25,9 +24,9 @@ module.exports = {
     if (fullURL.exec(url) !== null) {
       return url;
     } if (domainURL.exec(url) !== null) {
-      return `http://${url}`;
+      return `https://${url}`;
     } if (penURL.exec(url) !== null) {
-      return `http://codepen.io${url}`;
+      return `https://codepen.io${url}`;
     }
     throw new Error('Invalid URL');
   },
@@ -42,7 +41,7 @@ module.exports = {
   },
 
   parseScriptUrl(url) {
-    if (normalURL.exec(url) === null) return `http:${url}`;
+    if (normalURL.exec(url) === null) return `https:${url}`;
     return url;
   },
 
