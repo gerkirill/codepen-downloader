@@ -1,4 +1,5 @@
-
+/* eslint no-shadow: 0 */
+/* eslint consistent-return: 0 */
 const fs = require('fs');
 const async = require('async');
 
@@ -6,6 +7,7 @@ const fullURL = /http[s]?:\/\/codepen\.io\/(.*)\/(.*)\/(.*)/;
 const domainURL = /codepen\.io\/(.*)\/(.*)\/(.*)/;
 const penURL = /\/(.*)\/(.*)\/(.*)/;
 
+// todo: take a look into that httpS etc.
 const normalURL = /htt[s]?:\/\/(.*)/;
 
 module.exports = {
@@ -13,13 +15,10 @@ module.exports = {
   evaluateOptions(options) {
     if (options === null || options === undefined) return this.defaultOptions;
 
-    for (const opt in this.defaultOptions) {
-      if (!options.hasOwnProperty(opt)) {
-        options[opt] = this.defaultOptions[opt];
-      }
-    }
-
-    return options;
+    return {
+      ...this.defaultOptions,
+      ...options,
+    };
   },
 
   parseUrl(url) {
@@ -48,17 +47,11 @@ module.exports = {
   },
 
   createScriptTag(result) {
-    let scripts = '';
-    if (result.details) {
-      result.details.resources.forEach((d) => {
-        d.url = this.parseScriptUrl(d.url);
-        if (d.resource_type === 'js') {
-          scripts = `${scripts}\n \
-        <script src=${d.url}></script>`;
-        }
-      });
-    }
-    return scripts;
+    if (!result.details) return '';
+    return result.details.resources
+      .filter(resource => resource.resource_type === 'js')
+      .map(jsResource => `<script src=${jsResource.url}></script>`)
+      .join('\n');
   },
 
   createIndexHtmlFile(file, result, fn) {
