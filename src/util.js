@@ -1,38 +1,36 @@
-'use strict';
-let fs = require('fs');
-let async = require('async');
 
-const fullURL   = /http[s]?:\/\/codepen\.io\/(.*)\/(.*)\/(.*)/;
+/* eslint no-shadow: 0 */
+/* eslint consistent-return: 0 */
+const fs = require('fs');
+const async = require('async');
+
+const fullURL = /http[s]?:\/\/codepen\.io\/(.*)\/(.*)\/(.*)/;
 const domainURL = /codepen\.io\/(.*)\/(.*)\/(.*)/;
-const penURL    = /\/(.*)\/(.*)\/(.*)/;
+const penURL = /\/(.*)\/(.*)\/(.*)/;
 
+// todo: take a look into that httpS etc.
 const normalURL = /htt[s]?:\/\/(.*)/;
 
 module.exports = {
 
   evaluateOptions(options) {
-    if (options === null || options === undefined)
-      return this.defaultOptions;
+    if (options === null || options === undefined) return this.defaultOptions;
 
-    for(let opt in this.defaultOptions) {
-      if (!options.hasOwnProperty(opt)) {
-        options[opt] = this.defaultOptions[opt];
-      };
+    return {
+      ...this.defaultOptions,
+      ...options,
     };
-
-    return options;
   },
 
   parseUrl(url) {
     if (fullURL.exec(url) !== null) {
       return url;
-    } else if (domainURL.exec(url) !== null){
+    } if (domainURL.exec(url) !== null) {
       return `http://${url}`;
-    } else if (penURL.exec(url) !== null) {
+    } if (penURL.exec(url) !== null) {
       return `http://codepen.io${url}`;
-    } else {
-      throw new Error('Invalid URL');
     }
+    throw new Error('Invalid URL');
   },
 
   createDirectoryIfMissing(destination, callback) {
@@ -45,32 +43,25 @@ module.exports = {
   },
 
   parseScriptUrl(url) {
-    if (normalURL.exec(url) === null)
-      return `http:${url}`;
-    else
-      return url;
+    if (normalURL.exec(url) === null) return `http:${url}`;
+    return url;
   },
 
   createScriptTag(result) {
-    let scripts = "";
-    if (result.details) {
-      result.details.resources.forEach((d) => {
-        d.url = this.parseScriptUrl(d.url);
-        if (d.resource_type === 'js')
-        scripts = `${scripts}\n \
-        <script src=${d.url}></script>`;
-      });
-    }
-    return scripts;
+    if (!result.details) return '';
+    return result.details.resources
+      .filter(resource => resource.resource_type === 'js')
+      .map(jsResource => `<script src=${jsResource.url}></script>`)
+      .join('\n');
   },
 
   createIndexHtmlFile(file, result, fn) {
     async.parallel([
-      (callback) => fs.readFile(__dirname + '/template/head01.html', callback),
-      (callback) => fs.readFile(__dirname + '/template/head02.html', callback),
-      (callback) => fs.readFile(__dirname + '/template/foot.html', callback)
+      callback => fs.readFile(`${__dirname}/template/head01.html`, callback),
+      callback => fs.readFile(`${__dirname}/template/head02.html`, callback),
+      callback => fs.readFile(`${__dirname}/template/foot.html`, callback),
     ], (err, data) => {
-      if(err) return fn(err);
+      if (err) return fn(err);
       this.removeFileIfExists(file, (err) => {
         if (err) return fn(err);
         fs.appendFileSync(file, data[0]);
@@ -92,9 +83,9 @@ module.exports = {
 
   removeFileIfExists(file, fn) {
     fs.stat(file, (err) => {
-      if(!err) {
+      if (!err) {
         fs.unlink(file, fn);
-      } else if (err.code !== "ENOENT") {
+      } else if (err.code !== 'ENOENT') {
         fn(err);
       } else {
         fn(null);
@@ -102,11 +93,11 @@ module.exports = {
     });
   },
 
-  defaultOptions : {
-    targetFiles : ['html', 'css', 'js'],
-    includeDependencies : true,
-    includePreProcessed : true,
-    onTick : null
-  }
+  defaultOptions: {
+    targetFiles: ['html', 'css', 'js'],
+    includeDependencies: true,
+    includePreProcessed: true,
+    onTick: null,
+  },
 
 };

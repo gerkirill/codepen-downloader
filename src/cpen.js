@@ -1,4 +1,5 @@
-'use strict';
+/* eslint consistent-return: 0 */
+/* eslint no-underscore-dangle: 0 */
 
 const async = require('async');
 const util = require('./util');
@@ -7,32 +8,33 @@ const web = require('./web');
 module.exports = {
 
   download(url, destination, onCompleteCallback, options) {
-    options = util.evaluateOptions(options);
-    async.parallel(this._generateAsyncDownload_(url, options), (err, results) => {
-      if (err)
-        return console.error(err.message);
+    const opts = util.evaluateOptions(options);
+    async.parallel(this._generateAsyncDownload_(url, opts), (err, results) => {
+      if (err) return console.error(err.message);
 
       this.create(results, destination, (e) => {
-        if (options.onTick)
-          options.onTick();
+        if (opts.onTick) opts.onTick();
         onCompleteCallback(e);
       });
     });
   },
 
   _generateAsyncDownload_(url, options) {
-    let parallel = {};
-
     // Download main files [html, js, css]
-    options.targetFiles.forEach(f => parallel[f] = this.downloadFromEndpoint(url, f, options));
+    const parallel = options.targetFiles.reduce(
+      (downloads, file) => ({
+        ...downloads,
+        [file]: this.downloadFromEndpoint(url, file, options),
+      }),
+      {},
+    );
 
     // Download pen details
-    parallel['details'] = (callback) => {
+    parallel.details = (callback) => {
       web.getPenProperties(url, (err, data) => {
-        if (options.onTick)
-          options.onTick();
+        if (options.onTick) options.onTick();
         callback(err, data);
-      })
+      });
     };
 
     // @TODO: Download pre processed files
@@ -45,11 +47,10 @@ module.exports = {
   downloadFromEndpoint(url, fileExtension, options) {
     return (callback) => {
       web.downloadFile(url, fileExtension, callback, (err, data) => {
-        if(options.onTick)
-          options.onTick();
-        callback();
+        if (options.onTick) options.onTick();
+        callback(err, data);
       });
-    }
+    };
   },
 
   create(result, destination, fn) {
